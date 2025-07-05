@@ -29,7 +29,7 @@ SwiftUI için geliştirilmiş, ses tınılarını görselleştiren modern bir k�
 ### Manuel Kurulum
 
 ```bash
-git clone https://github.com/yourusername/SoundCanvas.git
+git clone https://github.com/developersailor/SoundCanvas.git
 cd SoundCanvas
 swift build
 ```
@@ -247,8 +247,8 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 ## 📞 İletişim
 
-- **GitHub**: [@yourusername](https://github.com/yourusername)
-- **Email**: your.email@example.com
+- **GitHub**: [@yourusername](https://github.com/developersailor)
+- **Email**: mehmetfiskindal@gmail.com
 
 ## 🙏 Teşekkürler
 
