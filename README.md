@@ -247,7 +247,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 ## 📞 İletişim
 
-- **GitHub**: [@yourusername](https://github.com/developersailor)
+- **GitHub**: [@developersailor](https://github.com/developersailor)
 - **Email**: mehmetfiskindal@gmail.com
 
 ## 🙏 Teşekkürler
