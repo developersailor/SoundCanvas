@@ -23,7 +23,7 @@ SwiftUI için geliştirilmiş, ses tınılarını görselleştiren modern bir k�
 
 1. Xcode'da projenizi açın
 2. **File** → **Add Package Dependencies**
-3. URL'yi girin: `https://github.com/yourusername/SoundCanvas.git`
+3. URL'yi girin: `https://github.com/developersailor/SoundCanvas.git`
 4. **Add Package** butonuna tıklayın
 
 ### Manuel Kurulum
