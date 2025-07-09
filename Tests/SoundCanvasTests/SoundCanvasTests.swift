@@ -45,6 +45,14 @@ final class SoundCanvasTests: XCTestCase {
         XCTAssertLessThan(waveform.min() ?? 0, -0.9)
     }
     
+    func testWaveformGeneratorHarmonicWave() {
+        let waveform = WaveformGenerator.harmonicWave(frequency: 440.0, amplitude: 1.0, harmonics: 3, sampleRate: 1000, duration: 0.1)
+        
+        XCTAssertEqual(waveform.count, 100)
+        XCTAssertGreaterThan(waveform.max() ?? 0, 0.5)
+        XCTAssertLessThan(waveform.min() ?? 0, -0.5)
+    }
+    
     func testPreviewAudioData() {
         let previewData = PreviewAudioData()
         
@@ -69,5 +77,47 @@ final class SoundCanvasTests: XCTestCase {
         XCTAssertEqual(provider.amplitude, 0.8)
         XCTAssertEqual(provider.waveform.count, 2)
         XCTAssertFalse(provider.isPlaying)
+    }
+    
+    func testMeditationColorPalette() {
+        let zenPalette = MeditationColorPalette.zen
+        let cosmicPalette = MeditationColorPalette.cosmic
+        
+        // Test that palettes have different colors
+        XCTAssertNotEqual(zenPalette.primary, cosmicPalette.primary)
+        XCTAssertNotEqual(zenPalette.secondary, cosmicPalette.secondary)
+        XCTAssertNotEqual(zenPalette.accent, cosmicPalette.accent)
+        
+        // Test that each palette has valid colors
+        XCTAssertNotEqual(zenPalette.primary, zenPalette.secondary)
+        XCTAssertNotEqual(zenPalette.primary, zenPalette.accent)
+        XCTAssertNotEqual(zenPalette.secondary, zenPalette.accent)
+    }
+    
+    func testMeditationVisualizers() {
+        let audioData = AudioData(frequency: 432.0, amplitude: 0.7, waveform: WaveformGenerator.harmonicWave(frequency: 432.0, amplitude: 0.7), isPlaying: true)
+        
+        // Test that meditation visualizers can be created
+        let mandala = MandalaVisualizer(audioData: audioData, palette: .zen)
+        let fractal = FractalVisualizer(audioData: audioData, palette: .cosmic)
+        let symmetric = SymmetricPatternVisualizer(audioData: audioData, palette: .golden)
+        
+        // These should not crash when created
+        XCTAssertNotNil(mandala)
+        XCTAssertNotNil(fractal)
+        XCTAssertNotNil(symmetric)
+    }
+    
+    func testMeditationSoundCanvasView() {
+        let audioData = AudioData(frequency: 432.0, amplitude: 0.6, waveform: WaveformGenerator.sineWave(frequency: 432.0, amplitude: 0.6), isPlaying: true)
+        
+        // Test different meditation visualizer types
+        let mandalaView = MeditationSoundCanvasView(audioData: audioData, visualizerType: .mandala, palette: .zen)
+        let fractalView = MeditationSoundCanvasView(audioData: audioData, visualizerType: .fractal, palette: .cosmic)
+        let zenView = MeditationSoundCanvasView(audioData: audioData, visualizerType: .zen, palette: .zen)
+        
+        XCTAssertNotNil(mandalaView)
+        XCTAssertNotNil(fractalView)
+        XCTAssertNotNil(zenView)
     }
 }

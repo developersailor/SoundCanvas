@@ -1,12 +1,15 @@
 # SoundCanvas 🎵
 
-SwiftUI için geliştirilmiş, ses tınılarını görselleştiren modern bir kütüphane. Farklı ses tınıları farklı görsel efektler üretir ve gerçek zamanlı ses analizi yapabilir.
+SwiftUI için geliştirilmiş, ses tınılarını görselleştiren modern bir kütüphane. Özellikle meditasyon uygulamaları için tasarlanmış, farklı ses tınıları farklı geometrik desenler (mandala, fraktal, simetrik) üretir ve gerçek zamanlı ses analizi yapabilir.
 
 ## 🌟 Özellikler
 
+- **Meditasyon Odaklı Görselleştirmeler**: Mandala, fraktal, simetrik desenler
+- **Özel Renk Paletleri**: Zen, gün batımı, okyanus, lavanta, altın, kozmik temalar
+- **Harmonik Dalga Formları**: Meditasyon için özel harmonik seriler
 - **Çoklu Görselleştirme Tipleri**: Dalga formu, spektrum analizi, dairesel dalga, titreşim efekti
 - **Gerçek Zamanlı Ses Analizi**: Mikrofon girişinden canlı ses verisi
-- **Farklı Dalga Formları**: Sine, kare, testere dişi, üçgen dalga desteği
+- **Farklı Dalga Formları**: Sine, kare, testere dişi, üçgen, harmonik dalga desteği
 - **Özelleştirilebilir Görünüm**: Renk, boyut, animasyon ayarları
 - **SwiftUI Uyumlu**: Modern SwiftUI API'leri ile tam entegrasyon
 - **Cross-Platform**: macOS, iOS, tvOS, watchOS desteği
@@ -47,10 +50,11 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            // Kombine görselleştirici
-            SoundCanvasView(
+            // Meditasyon görselleştirici
+            MeditationSoundCanvasView(
                 audioData: audioData,
-                visualizerType: .combined,
+                visualizerType: .mandala,
+                palette: .zen,
                 backgroundColor: .black
             )
             .frame(height: 300)
@@ -73,7 +77,49 @@ struct ContentView: View {
 }
 ```
 
-### Görselleştirme Tipleri
+### Meditasyon Görselleştirme Tipleri
+
+#### 1. Mandala Görselleştirici
+```swift
+MandalaVisualizer(
+    audioData: audioData,
+    palette: .zen,
+    layerCount: 8
+)
+.frame(width: 300, height: 300)
+```
+
+#### 2. Fraktal Görselleştirici
+```swift
+FractalVisualizer(
+    audioData: audioData,
+    palette: .cosmic,
+    depth: 4
+)
+.frame(width: 250, height: 250)
+```
+
+#### 3. Simetrik Desen Görselleştirici
+```swift
+SymmetricPatternVisualizer(
+    audioData: audioData,
+    palette: .golden,
+    symmetryOrder: 8
+)
+.frame(width: 200, height: 200)
+```
+
+#### 4. Zen Kombinasyonu
+```swift
+MeditationSoundCanvasView(
+    audioData: audioData,
+    visualizerType: .zen,
+    palette: .zen
+)
+.frame(height: 400)
+```
+
+### Klasik Görselleştirme Tipleri
 
 #### 1. Dalga Formu (Waveform)
 ```swift
@@ -117,6 +163,15 @@ VibrationVisualizer(
 ### Özel Ses Verisi Oluşturma
 
 ```swift
+// Meditasyon için harmonik dalga oluşturma (432 Hz - doğal frekans)
+let harmonicWave = WaveformGenerator.harmonicWave(
+    frequency: 432.0,  // Doğal A4 notası
+    amplitude: 1.0,
+    harmonics: 5,
+    sampleRate: 44100,
+    duration: 1.0
+)
+
 // Sine dalga oluşturma
 let sineWave = WaveformGenerator.sineWave(
     frequency: 440.0,  // A4 notası
@@ -133,9 +188,9 @@ let squareWave = WaveformGenerator.squareWave(
 
 // Özel ses verisi
 let customAudioData = AudioData(
-    frequency: 440.0,
+    frequency: 432.0,
     amplitude: 0.7,
-    waveform: sineWave,
+    waveform: harmonicWave,
     isPlaying: true
 )
 ```
@@ -157,13 +212,36 @@ struct PreviewView: View {
 
 ## 🎨 Görselleştirme Seçenekleri
 
+### MeditationSoundCanvasView.MeditationVisualizerType
+
+- `.mandala`: Mandala görselleştirici
+- `.fractal`: Fraktal desen görselleştirici
+- `.symmetric`: Simetrik desen görselleştirici
+- `.zen`: Zen kombinasyonu (mandala + simetrik)
+- `.cosmic`: Kozmik kombinasyonu (fraktal + mandala)
+
 ### SoundCanvasView.VisualizerType
 
 - `.waveform`: Dalga formu görselleştirici
 - `.spectrum`: Spektrum analizi
 - `.circular`: Dairesel dalga efekti
 - `.vibration`: Titreşim parçacık efekti
+- `.mandala`: Mandala görselleştirici
+- `.fractal`: Fraktal görselleştirici
+- `.symmetric`: Simetrik desen görselleştirici
 - `.combined`: Tüm görselleştiricileri birleştirir
+
+### Meditasyon Renk Paletleri
+
+```swift
+// Farklı meditasyon temaları
+MeditationColorPalette.zen      // Yeşil tonları - sakinlik
+MeditationColorPalette.sunset   // Turuncu-kırmızı - enerji
+MeditationColorPalette.ocean    // Mavi tonları - derinlik
+MeditationColorPalette.lavender // Mor tonları - ruhsallık
+MeditationColorPalette.golden   // Altın tonları - aydınlanma
+MeditationColorPalette.cosmic   // Uzay tonları - sonsuzluk
+```
 
 ### Renk Özelleştirme
 
@@ -181,7 +259,7 @@ VibrationVisualizer(audioData: audioData, color: .pink)
 
 ```swift
 class CustomAudioProvider: ObservableObject, AudioDataProvider {
-    @Published var frequency: Double = 440.0
+    @Published var frequency: Double = 432.0  // Doğal frekans
     @Published var amplitude: Double = 1.0
     @Published var waveform: [Double] = []
     @Published var isPlaying: Bool = false
@@ -189,6 +267,76 @@ class CustomAudioProvider: ObservableObject, AudioDataProvider {
     // Özel ses işleme mantığınızı buraya ekleyin
     func updateAudioData() {
         // Ses verisi güncelleme
+    }
+}
+```
+
+### Meditasyon Uygulaması Örneği
+
+```swift
+struct MeditationApp: View {
+    @StateObject private var audioData = LiveAudioData()
+    @State private var selectedPalette: MeditationColorPalette = .zen
+    @State private var selectedVisualizer: MeditationSoundCanvasView.MeditationVisualizerType = .mandala
+    
+    var body: some View {
+        ZStack {
+            // Arka plan gradyanı
+            LinearGradient(
+                colors: [selectedPalette.secondary, selectedPalette.primary],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                // Meditasyon görselleştirici
+                MeditationSoundCanvasView(
+                    audioData: audioData,
+                    visualizerType: selectedVisualizer,
+                    palette: selectedPalette,
+                    backgroundColor: .clear
+                )
+                .frame(height: 400)
+                
+                // Kontrol paneli
+                HStack(spacing: 20) {
+                    Button("Başlat") {
+                        audioData.startRecording()
+                    }
+                    .disabled(audioData.isPlaying)
+                    .buttonStyle(.borderedProminent)
+                    
+                    Button("Durdur") {
+                        audioData.stopRecording()
+                    }
+                    .disabled(!audioData.isPlaying)
+                    .buttonStyle(.bordered)
+                }
+                
+                // Görselleştirici seçici
+                Picker("Görselleştirici", selection: $selectedVisualizer) {
+                    Text("Mandala").tag(MeditationSoundCanvasView.MeditationVisualizerType.mandala)
+                    Text("Fraktal").tag(MeditationSoundCanvasView.MeditationVisualizerType.fractal)
+                    Text("Simetrik").tag(MeditationSoundCanvasView.MeditationVisualizerType.symmetric)
+                    Text("Zen").tag(MeditationSoundCanvasView.MeditationVisualizerType.zen)
+                    Text("Kozmik").tag(MeditationSoundCanvasView.MeditationVisualizerType.cosmic)
+                }
+                .pickerStyle(.segmented)
+                
+                // Renk paleti seçici
+                Picker("Tema", selection: $selectedPalette) {
+                    Text("Zen").tag(MeditationColorPalette.zen)
+                    Text("Gün Batımı").tag(MeditationColorPalette.sunset)
+                    Text("Okyanus").tag(MeditationColorPalette.ocean)
+                    Text("Lavanta").tag(MeditationColorPalette.lavender)
+                    Text("Altın").tag(MeditationColorPalette.golden)
+                    Text("Kozmik").tag(MeditationColorPalette.cosmic)
+                }
+                .pickerStyle(.wheel)
+            }
+            .padding()
+        }
     }
 }
 ```

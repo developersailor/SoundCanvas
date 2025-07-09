@@ -22,6 +22,51 @@ public protocol AudioVisualizer {
     func makeView(audioData: AudioDataProvider) -> Content
 }
 
+// MARK: - Meditation Color Palettes
+
+/// Meditasyon için özel renk paletleri
+public enum MeditationColorPalette {
+    case zen          // Yeşil tonları
+    case sunset       // Turuncu-kırmızı tonları
+    case ocean        // Mavi tonları
+    case lavender     // Mor tonları
+    case golden       // Altın tonları
+    case cosmic       // Uzay tonları
+    
+    public var primary: Color {
+        switch self {
+        case .zen: return Color(red: 0.2, green: 0.6, blue: 0.3)
+        case .sunset: return Color(red: 0.9, green: 0.4, blue: 0.2)
+        case .ocean: return Color(red: 0.2, green: 0.4, blue: 0.8)
+        case .lavender: return Color(red: 0.6, green: 0.4, blue: 0.8)
+        case .golden: return Color(red: 0.9, green: 0.7, blue: 0.2)
+        case .cosmic: return Color(red: 0.3, green: 0.2, blue: 0.5)
+        }
+    }
+    
+    public var secondary: Color {
+        switch self {
+        case .zen: return Color(red: 0.1, green: 0.4, blue: 0.2)
+        case .sunset: return Color(red: 0.7, green: 0.3, blue: 0.1)
+        case .ocean: return Color(red: 0.1, green: 0.3, blue: 0.6)
+        case .lavender: return Color(red: 0.4, green: 0.3, blue: 0.6)
+        case .golden: return Color(red: 0.7, green: 0.5, blue: 0.1)
+        case .cosmic: return Color(red: 0.2, green: 0.1, blue: 0.4)
+        }
+    }
+    
+    public var accent: Color {
+        switch self {
+        case .zen: return Color(red: 0.8, green: 0.9, blue: 0.7)
+        case .sunset: return Color(red: 1.0, green: 0.8, blue: 0.6)
+        case .ocean: return Color(red: 0.7, green: 0.9, blue: 1.0)
+        case .lavender: return Color(red: 0.9, green: 0.8, blue: 1.0)
+        case .golden: return Color(red: 1.0, green: 0.9, blue: 0.7)
+        case .cosmic: return Color(red: 0.8, green: 0.7, blue: 1.0)
+        }
+    }
+}
+
 // MARK: - Audio Data Models
 
 /// Temel ses verisi modeli
@@ -155,6 +200,263 @@ public class WaveformGenerator {
         }
         
         return waveform
+    }
+    
+    /// Meditasyon için özel dalga formu - harmonik seriler
+    public static func harmonicWave(frequency: Double, amplitude: Double, harmonics: Int = 5, sampleRate: Double = 44100, duration: Double = 1.0) -> [Double] {
+        let samples = Int(sampleRate * duration)
+        var waveform: [Double] = []
+        
+        for i in 0..<samples {
+            let time = Double(i) / sampleRate
+            var value: Double = 0
+            
+            for h in 1...harmonics {
+                let harmonicFreq = frequency * Double(h)
+                let harmonicAmp = amplitude / Double(h)
+                value += harmonicAmp * sin(2 * .pi * harmonicFreq * time)
+            }
+            
+            waveform.append(value)
+        }
+        
+        return waveform
+    }
+}
+
+// MARK: - Meditation Visualizers
+
+/// Mandala görselleştirici - meditasyon için özel
+public struct MandalaVisualizer: View {
+    let audioData: AudioDataProvider
+    let palette: MeditationColorPalette
+    let layerCount: Int
+    
+    public init(audioData: AudioDataProvider, palette: MeditationColorPalette = .zen, layerCount: Int = 8) {
+        self.audioData = audioData
+        self.palette = palette
+        self.layerCount = layerCount
+    }
+    
+    public var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(0..<layerCount, id: \.self) { layer in
+                    MandalaLayer(
+                        audioData: audioData,
+                        layerIndex: layer,
+                        totalLayers: layerCount,
+                        palette: palette,
+                        size: geometry.size
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct MandalaLayer: View {
+    let audioData: AudioDataProvider
+    let layerIndex: Int
+    let totalLayers: Int
+    let palette: MeditationColorPalette
+    let size: CGSize
+    
+    var body: some View {
+        let petalCount = 6 + layerIndex * 2
+        let rotationSpeed = Double(layerIndex + 1) * 0.5
+        let scale = 1.0 + CGFloat(audioData.amplitude) * 0.3 + CGFloat(layerIndex) * 0.1
+        
+        ZStack {
+            ForEach(0..<petalCount, id: \.self) { petal in
+                PetalShape(
+                    audioData: audioData,
+                    palette: palette,
+                    layerIndex: layerIndex
+                )
+                .rotationEffect(.degrees(Double(petal) * 360.0 / Double(petalCount)))
+                .scaleEffect(scale)
+            }
+        }
+        .rotationEffect(.degrees(Date().timeIntervalSince1970 * rotationSpeed))
+        .animation(.easeInOut(duration: 2.0), value: audioData.amplitude)
+    }
+}
+
+private struct PetalShape: View {
+    let audioData: AudioDataProvider
+    let palette: MeditationColorPalette
+    let layerIndex: Int
+    
+    var body: some View {
+        Path { path in
+            let width: CGFloat = 20 + CGFloat(audioData.amplitude) * 30
+            let height: CGFloat = 60 + CGFloat(audioData.amplitude) * 40
+            
+            path.move(to: CGPoint(x: 0, y: -height/2))
+            path.addQuadCurve(
+                to: CGPoint(x: width/2, y: 0),
+                control: CGPoint(x: width/4, y: -height/4)
+            )
+            path.addQuadCurve(
+                to: CGPoint(x: 0, y: height/2),
+                control: CGPoint(x: width/4, y: height/4)
+            )
+            path.addQuadCurve(
+                to: CGPoint(x: -width/2, y: 0),
+                control: CGPoint(x: -width/4, y: height/4)
+            )
+            path.addQuadCurve(
+                to: CGPoint(x: 0, y: -height/2),
+                control: CGPoint(x: -width/4, y: -height/4)
+            )
+        }
+        .fill(
+            LinearGradient(
+                colors: [palette.primary, palette.secondary, palette.accent],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .opacity(0.7 - Double(layerIndex) * 0.1)
+    }
+}
+
+/// Fraktal görselleştirici
+public struct FractalVisualizer: View {
+    let audioData: AudioDataProvider
+    let palette: MeditationColorPalette
+    let depth: Int
+    
+    public init(audioData: AudioDataProvider, palette: MeditationColorPalette = .cosmic, depth: Int = 4) {
+        self.audioData = audioData
+        self.palette = palette
+        self.depth = depth
+    }
+    
+    public var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(0..<depth, id: \.self) { level in
+                    FractalLevel(
+                        audioData: audioData,
+                        level: level,
+                        depth: depth,
+                        palette: palette,
+                        size: geometry.size
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct FractalLevel: View {
+    let audioData: AudioDataProvider
+    let level: Int
+    let depth: Int
+    let palette: MeditationColorPalette
+    let size: CGSize
+    
+    var body: some View {
+        let triangleCount = Int(pow(3.0, Double(level)))
+        let scale = 1.0 - Double(level) / Double(depth) + CGFloat(audioData.amplitude) * 0.2
+        
+        ZStack {
+            ForEach(0..<triangleCount, id: \.self) { index in
+                TriangleShape(
+                    audioData: audioData,
+                    palette: palette,
+                    level: level
+                )
+                .scaleEffect(scale)
+                .rotationEffect(.degrees(Double(index) * 120 + Date().timeIntervalSince1970 * 10))
+            }
+        }
+        .animation(.easeInOut(duration: 1.5), value: audioData.amplitude)
+    }
+}
+
+private struct TriangleShape: View {
+    let audioData: AudioDataProvider
+    let palette: MeditationColorPalette
+    let level: Int
+    
+    var body: some View {
+        Path { path in
+            let size: CGFloat = 30 + CGFloat(audioData.amplitude) * 20
+            let height = size * sqrt(3) / 2
+            
+            path.move(to: CGPoint(x: 0, y: -height/2))
+            path.addLine(to: CGPoint(x: -size/2, y: height/2))
+            path.addLine(to: CGPoint(x: size/2, y: height/2))
+            path.closeSubpath()
+        }
+        .fill(
+            RadialGradient(
+                colors: [palette.accent, palette.primary, palette.secondary],
+                center: .center,
+                startRadius: 0,
+                endRadius: 50
+            )
+        )
+        .opacity(0.8 - Double(level) * 0.2)
+    }
+}
+
+/// Simetrik desen görselleştirici
+public struct SymmetricPatternVisualizer: View {
+    let audioData: AudioDataProvider
+    let palette: MeditationColorPalette
+    let symmetryOrder: Int
+    
+    public init(audioData: AudioDataProvider, palette: MeditationColorPalette = .golden, symmetryOrder: Int = 8) {
+        self.audioData = audioData
+        self.palette = palette
+        self.symmetryOrder = symmetryOrder
+    }
+    
+    public var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(0..<symmetryOrder, id: \.self) { index in
+                    SymmetricElement(
+                        audioData: audioData,
+                        palette: palette,
+                        index: index,
+                        totalElements: symmetryOrder,
+                        size: geometry.size
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct SymmetricElement: View {
+    let audioData: AudioDataProvider
+    let palette: MeditationColorPalette
+    let index: Int
+    let totalElements: Int
+    let size: CGSize
+    
+    var body: some View {
+        let angle = Double(index) * 2 * .pi / Double(totalElements)
+        let radius = 80 + CGFloat(audioData.amplitude) * 60
+        let x = cos(angle) * radius
+        let y = sin(angle) * radius
+        
+        Circle()
+            .fill(
+                AngularGradient(
+                    colors: [palette.primary, palette.secondary, palette.accent, palette.primary],
+                    center: .center
+                )
+            )
+            .frame(width: 20 + CGFloat(audioData.amplitude) * 30, height: 20 + CGFloat(audioData.amplitude) * 30)
+            .offset(x: x, y: y)
+            .scaleEffect(1.0 + CGFloat(audioData.amplitude) * 0.5)
+            .animation(.easeInOut(duration: 0.8), value: audioData.amplitude)
     }
 }
 
@@ -316,6 +618,9 @@ public struct SoundCanvasView: View {
         case circular
         case vibration
         case combined
+        case mandala
+        case fractal
+        case symmetric
     }
     
     public init(audioData: AudioDataProvider, visualizerType: VisualizerType = .combined, backgroundColor: Color = .black) {
@@ -341,6 +646,15 @@ public struct SoundCanvasView: View {
             case .vibration:
                 VibrationVisualizer(audioData: audioData, color: .orange)
                     .padding()
+            case .mandala:
+                MandalaVisualizer(audioData: audioData, palette: .zen)
+                    .padding()
+            case .fractal:
+                FractalVisualizer(audioData: audioData, palette: .cosmic)
+                    .padding()
+            case .symmetric:
+                SymmetricPatternVisualizer(audioData: audioData, palette: .golden)
+                    .padding()
             case .combined:
                 VStack(spacing: 20) {
                     WaveformVisualizer(audioData: audioData, color: .blue)
@@ -358,6 +672,58 @@ public struct SoundCanvasView: View {
                     }
                 }
                 .padding()
+            }
+        }
+    }
+}
+
+/// Meditasyon odaklı ana görselleştirici
+public struct MeditationSoundCanvasView: View {
+    let audioData: AudioDataProvider
+    let visualizerType: MeditationVisualizerType
+    let palette: MeditationColorPalette
+    let backgroundColor: Color
+    
+    public enum MeditationVisualizerType {
+        case mandala
+        case fractal
+        case symmetric
+        case zen
+        case cosmic
+    }
+    
+    public init(audioData: AudioDataProvider, visualizerType: MeditationVisualizerType = .mandala, palette: MeditationColorPalette = .zen, backgroundColor: Color = .black) {
+        self.audioData = audioData
+        self.visualizerType = visualizerType
+        self.palette = palette
+        self.backgroundColor = backgroundColor
+    }
+    
+    public var body: some View {
+        ZStack {
+            backgroundColor
+            
+            switch visualizerType {
+            case .mandala:
+                MandalaVisualizer(audioData: audioData, palette: palette)
+            case .fractal:
+                FractalVisualizer(audioData: audioData, palette: palette)
+            case .symmetric:
+                SymmetricPatternVisualizer(audioData: audioData, palette: palette)
+            case .zen:
+                VStack(spacing: 30) {
+                    MandalaVisualizer(audioData: audioData, palette: .zen)
+                        .frame(width: 200, height: 200)
+                    
+                    SymmetricPatternVisualizer(audioData: audioData, palette: .zen, symmetryOrder: 6)
+                        .frame(width: 150, height: 150)
+                }
+            case .cosmic:
+                ZStack {
+                    FractalVisualizer(audioData: audioData, palette: .cosmic)
+                    MandalaVisualizer(audioData: audioData, palette: .cosmic, layerCount: 4)
+                        .scaleEffect(0.7)
+                }
             }
         }
     }
@@ -402,5 +768,21 @@ public class PreviewAudioData: ObservableObject, AudioDataProvider {
     
     deinit {
         // Cleanup will be handled by ARC
+    }
+}
+
+// MARK: - Previews
+struct SoundCanvasView_Previews: PreviewProvider {
+    static var previews: some View {
+        let previewData = PreviewAudioData()
+        VStack(spacing: 20) {
+            SoundCanvasView(audioData: previewData, visualizerType: .mandala, backgroundColor: .black)
+                .frame(height: 200)
+            
+            MeditationSoundCanvasView(audioData: previewData, visualizerType: .zen, palette: .zen)
+                .frame(height: 200)
+        }
+        .previewLayout(.sizeThatFits)
+        .padding()
     }
 }
